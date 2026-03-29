@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { YoutubeTranscript } from 'youtube-transcript';
+import TranscriptClient from 'youtube-transcript-api';
 import { extractVideoId } from '@/lib/youtube';
 import type { TranscriptData, TranscriptSegment } from '@/types';
 
 // In-memory cache (use Redis in production)
 const transcriptCache = new Map<string, TranscriptData>();
+const client = new TranscriptClient();
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,21 +42,20 @@ export async function POST(req: NextRequest) {
     let segments: TranscriptSegment[] = [];
 
     try {
-      const rawSegments = await YoutubeTranscript.fetchTranscript(videoId, {
-        lang: 'en',
-      });
+      await client.ready;
+      const rawSegments = await client.getTranscript(videoId);
 
-      segments = rawSegments.map((s) => ({
+      segments = rawSegments.map((s: { text: string; start?: number; duration?: number }) => ({
         text: s.text,
-        duration: s.duration,
-        offset: s.offset,
+        duration: s.duration || 0,
+        offset: s.start || 0,
       }));
     } catch (transcriptError: unknown) {
       const errMsg =
         transcriptError instanceof Error ? transcriptError.message : String(transcriptError);
 
-      // Try without language preference
-      if (errMsg.includes('Could not find') || errMsg.includes('disabled')) {
+      // Handle known error cases
+      if (errMsg.includes('invalid video ID') || errMsg.includes('disabled')) {
         return NextResponse.json(
           {
             success: false,
@@ -66,24 +66,14 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Try fetching without language constraint
-      try {
-        const rawSegments = await YoutubeTranscript.fetchTranscript(videoId);
-        segments = rawSegments.map((s) => ({
-          text: s.text,
-          duration: s.duration,
-          offset: s.offset,
-        }));
-      } catch {
-        return NextResponse.json(
-          {
-            success: false,
-            error:
-              'Unable to fetch transcript for this video. The video may be private, age-restricted, or have captions disabled.',
-          },
-          { status: 422 }
-        );
-      }
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            'Unable to fetch transcript for this video. The video may be private, age-restricted, or have captions disabled.',
+        },
+        { status: 422 }
+      );
     }
 
     if (!segments.length) {
