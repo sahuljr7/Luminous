@@ -51,7 +51,7 @@ async function fetchTranscriptFromYouTube(videoId: string): Promise<TranscriptSe
       const match3 = html.match(/ytInitialData = ({.+?})\s*;/);
       if (match3) {
         // Use a more careful parsing approach for incomplete JSON
-        let jsonStr = match3[1];
+        const jsonStr = match3[1];
         try {
           data = JSON.parse(jsonStr);
         } catch (e) {
