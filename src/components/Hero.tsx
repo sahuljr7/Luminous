@@ -141,8 +141,9 @@ export function Hero() {
 
   // Expose processVideo so ApiKeyModal can trigger it after key is entered
   useEffect(() => {
-    (window as any).__processVideo = processVideo;
-    return () => { delete (window as any).__processVideo; };
+    const windowWithCustom = window as unknown as Record<string, (videoUrl: string, key: string) => Promise<void>>;
+    windowWithCustom.__processVideo = processVideo;
+    return () => { delete windowWithCustom.__processVideo; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiKey]);
 

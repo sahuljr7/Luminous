@@ -39,8 +39,11 @@ export function ApiKeyModal() {
     setOpen(false);
 
     // Trigger video processing if there was a pending URL
-    if (pendingUrl && (window as any).__processVideo) {
-      await (window as any).__processVideo(pendingUrl, trimmed);
+    if (pendingUrl) {
+      const processVideoCb = (window as unknown as Record<string, (url: string, key: string) => Promise<void>>).__processVideo;
+      if (processVideoCb) {
+        await processVideoCb(pendingUrl, trimmed);
+      }
     }
   };
 
@@ -113,7 +116,7 @@ export function ApiKeyModal() {
               )}
 
               <p className="text-xs mb-5" style={{ color: 'var(--text-muted)' }}>
-                Your key is stored locally in your browser and never sent to any server except Ollama's API.{' '}
+                Your key is stored locally in your browser and never sent to any server except Ollama&lsquo;s API.{' '}
                 <a
                   href="https://ollama.com"
                   target="_blank"

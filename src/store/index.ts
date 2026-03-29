@@ -10,7 +10,7 @@ import type {
 
 export const useAppStore = create<AppState>()(
   persist(
-    (set, get) => ({
+    (set, _get) => ({
       // API Key
       apiKey: null,
       setApiKey: (key: string) => set({ apiKey: key }),

@@ -1,9 +1,8 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Clock, Trash2, ExternalLink } from 'lucide-react';
+import { X, Clock, Trash2 } from 'lucide-react';
 import { useAppStore } from '@/store';
-import { buildYouTubeUrl } from '@/lib/youtube';
 
 interface Props {
   open: boolean;

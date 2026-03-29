@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { ExternalLink, Copy, Download } from 'lucide-react';
 import { useAppStore } from '@/store';
 import { buildThumbnailUrl, buildYouTubeUrl } from '@/lib/youtube';

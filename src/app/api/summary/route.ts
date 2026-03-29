@@ -6,7 +6,7 @@ import type { SummaryData } from '@/types';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { transcript, videoId, apiKey } = body;
+    const { transcript, apiKey } = body;
 
     if (!transcript || typeof transcript !== 'string') {
       return NextResponse.json(
